@@ -1,0 +1,67 @@
+networks:
+  korp-network:
+    external: true
+    name: korp-network
+
+volumes:
+  grafana-data:
+  prometheus-data:
+
+services:
+  http-server-projeto-korp:
+    build:
+      context: ./http-server-projeto-korp
+      dockerfile: Dockerfile
+    image: http-server-projeto-korp:latest
+    container_name: http-server-projeto-korp
+    networks:
+      - korp-network
+    restart: unless-stopped
+    # Nenhuma porta é exposta ao host: o serviço só é alcançável dentro da
+    # rede Docker "korp-network", via NGINX.
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d:ro
+    networks:
+      - korp-network
+    depends_on:
+      - http-server-projeto-korp
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - korp-network
+    ports:
+      - "9090:9090"
+    depends_on:
+      - http-server-projeto-korp
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    networks:
+      - korp-network
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    restart: unless-stopped

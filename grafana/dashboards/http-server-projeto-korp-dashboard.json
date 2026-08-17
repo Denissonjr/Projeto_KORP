@@ -1,0 +1,192 @@
+{
+  "id": null,
+  "uid": "http-server-projeto-korp",
+  "title": "Projeto Korp - http-server-projeto-korp",
+  "tags": ["projeto-korp", "golang", "prometheus"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Disponibilidade do Serviço",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "http_server_projeto_korp_up",
+          "legendFormat": "up",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" } } },
+            { "type": "value", "options": { "1": { "text": "UP", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "colorMode": "background"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Prometheus Scrape Target Up",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "up{job=\"http-server-projeto-korp\"}",
+          "legendFormat": "scrape up",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" } } },
+            { "type": "value", "options": { "1": { "text": "UP", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "colorMode": "background"
+      }
+    },
+    {
+      "id": 3,
+      "title": "Total de Requisições (acumulado)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum(http_server_projeto_korp_requests_total)",
+          "legendFormat": "total",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 4,
+      "title": "Taxa de Requisições (req/s, 1m)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_projeto_korp_requests_total[1m]))",
+          "legendFormat": "req/s",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 5,
+      "title": "Volume de Requisições ao Longo do Tempo",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (path, method) (rate(http_server_projeto_korp_requests_total[1m]))",
+          "legendFormat": "{{method}} {{path}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "reqps" },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "title": "Requisições por Código de Status",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (status) (http_server_projeto_korp_requests_total)",
+          "legendFormat": "{{status}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Latência p95 (segundos)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, path) (rate(http_server_projeto_korp_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "p95 {{path}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "title": "Disponibilidade (janela 15m)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "avg_over_time(up{job=\"http-server-projeto-korp\"}[15m]) * 100",
+          "legendFormat": "% disponibilidade",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "percent", "max": 100, "min": 0 },
+        "overrides": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Go
+http-server-projeto-korp/http-server-projeto-korp
+*.exe
+*.test
+*.out
+
+# Ansible
+*.retry
+
+# OS
+.DS_Store
